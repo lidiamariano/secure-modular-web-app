@@ -1,10 +1,18 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type Product struct {
-    gorm.Model
-    Name        string  `json:"name"`
-    Description string  `json:"description"`
-    Price       float64 `json:"price"`
+	ID          uint           `gorm:"primaryKey" json:"id"`
+	Name        string         `gorm:"type:varchar(100);not null" json:"name"`
+	Description string         `gorm:"type:text" json:"description"`
+	Price       float64        `gorm:"type:numeric(10,2);not null" json:"price"`
+	Quantity    int            `gorm:"not null" json:"quantity"`
+	Image       string         `gorm:"type:text" json:"image,omitempty"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
 }

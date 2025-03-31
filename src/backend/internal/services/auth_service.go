@@ -1,28 +1,37 @@
 package services
 
 import (
-    "errors"
-    "backend/internal/models"
-    "backend/internal/utils"
-    "backend/internal/database"
+	"errors"
+
+	"backend/internal/database"
+	"backend/internal/models"
+	"backend/internal/utils"
 )
 
-// AuthenticateUser verifica credenciais e retorna um token JWT se válidas
-func AuthenticateUser(email string, password string) (string, error) {
-    var user models.User
-    // Buscar usuário por email no banco
-    result := database.DB.Where("email = ?", email).First(&user)
-    if result.Error != nil {
-        return "", errors.New("user not found")
-    }
-    // Verificar senha
-    if !utils.CheckPasswordHash(password, user.Password) {
-        return "", errors.New("incorrect password")
-    }
-    // Gerar token JWT com ID do usuário
-    token, err := utils.GenerateJWT(user.ID)
-    if err != nil {
-        return "", errors.New("failed to generate token")
-    }
-    return token, nil
+func RegisterUser(user *models.User) error {
+	hashedPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+	user.Password = hashedPassword
+	return database.DB.Create(user).Error
+}
+
+func Login(email, password string) (string, error) {
+	var user models.User
+	db := database.DB
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		return "", errors.New("Usuário não encontrado")
+	}
+
+	if !utils.CheckPasswordHash(password, user.Password) {
+		return "", errors.New("Senha incorreta")
+	}
+
+	token, err := utils.GenerateJWT(user.ID)
+	if err != nil {
+		return "", errors.New("Erro ao gerar token")
+	}
+
+	return token, nil
 }
