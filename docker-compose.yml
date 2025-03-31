@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend_app
+    env_file: .env
+    ports:
+      - "8080:8080" 
+    depends_on:
+      - db 
+
+  db:
+    image: postgres:15
+    container_name: secureapp_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - secureapp
+    expose:
+      - "5432" 
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: secureapp_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"  
+    depends_on:
+      - db
+    networks:
+      - secureapp
+
+volumes:
+  db_data:
+
+networks:
+  secureapp:
+    driver: bridge
