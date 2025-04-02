@@ -24,7 +24,7 @@ const Register = () => {
     const { status, data } = await apiRequest("/register", "POST", payload);
 
     if (status === 201) {
-      setSucesso("Cadastro realizado com sucesso. Faça login.");
+      setSucesso("Cadastro realizado com sucesso. Redirecionando...");
       setTimeout(() => navigate("/login"), 1500);
     } else {
       setErro(data.error || "Erro ao registrar");
@@ -32,48 +32,64 @@ const Register = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
-      <h2 className="text-2xl font-bold mb-4 text-center">Cadastro</h2>
-      {erro && <p className="text-red-600 mb-4">{erro}</p>}
-      {sucesso && <p className="text-green-600 mb-4">{sucesso}</p>}
-      <form onSubmit={handleRegister} className="space-y-4">
-        <div>
-          <label className="block mb-1">Nome</label>
-          <input
-            type="text"
-            className="w-full border px-3 py-2 rounded"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1">E-mail</label>
-          <input
-            type="email"
-            className="w-full border px-3 py-2 rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Senha</label>
-          <input
-            type="password"
-            className="w-full border px-3 py-2 rounded"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-        >
-          Cadastrar
-        </button>
-      </form>
+    <div className="flex items-center justify-center min-h-full pt-[80px]">
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md">
+        <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
+          Crie sua conta
+        </h2>
+
+        {erro && <p className="text-red-600 text-sm mb-4 text-center">{erro}</p>}
+        {sucesso && <p className="text-green-600 text-sm mb-4 text-center">{sucesso}</p>}
+
+        <form onSubmit={handleRegister} className="space-y-5">
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Nome</label>
+            <input
+              type="text"
+              className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Seu nome completo"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">E-mail</label>
+            <input
+              type="email"
+              className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seuemail@exemplo.com"
+              required
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Senha</label>
+            <input
+              type="password"
+              className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white font-medium py-2 rounded-md hover:bg-green-700 transition"
+          >
+            Cadastrar
+          </button>
+        </form>
+
+        <p className="text-sm text-center text-gray-600 mt-6">
+          Já tem uma conta?{" "}
+          <a href="/login" className="text-green-600 hover:underline">
+            Fazer login
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
