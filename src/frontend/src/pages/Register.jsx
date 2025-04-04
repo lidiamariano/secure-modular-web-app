@@ -15,19 +15,17 @@ const Register = () => {
     setErro(null);
     setSucesso(null);
 
-    const payload = {
-      name: nome,
-      email,
-      password: senha,
-    };
+    try {
+      await apiRequest("/register", "POST", {
+        name: nome,
+        email,
+        password: senha,
+      });
 
-    const { status, data } = await apiRequest("/register", "POST", payload);
-
-    if (status === 201) {
       setSucesso("Cadastro realizado com sucesso. Redirecionando...");
       setTimeout(() => navigate("/login"), 1500);
-    } else {
-      setErro(data.error || "Erro ao registrar");
+    } catch (error) {
+      setErro(error.response?.data?.message || "Erro ao registrar");
     }
   };
 
@@ -38,12 +36,18 @@ const Register = () => {
           Crie sua conta
         </h2>
 
-        {erro && <p className="text-red-600 text-sm mb-4 text-center">{erro}</p>}
-        {sucesso && <p className="text-green-600 text-sm mb-4 text-center">{sucesso}</p>}
+        {erro && (
+          <p className="text-red-600 text-sm mb-4 text-center">{erro}</p>
+        )}
+        {sucesso && (
+          <p className="text-green-600 text-sm mb-4 text-center">{sucesso}</p>
+        )}
 
-        <form onSubmit={handleRegister} className="space-y-5">
+        <form className="space-y-5">
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Nome</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Nome
+            </label>
             <input
               type="text"
               className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -54,7 +58,9 @@ const Register = () => {
             />
           </div>
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">E-mail</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              E-mail
+            </label>
             <input
               type="email"
               className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -65,7 +71,9 @@ const Register = () => {
             />
           </div>
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Senha</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Senha
+            </label>
             <input
               type="password"
               className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -77,6 +85,8 @@ const Register = () => {
           </div>
           <button
             type="submit"
+            onClick={handleRegister}
+            disabled={!nome || !email || !senha}
             className="w-full bg-green-600 text-white font-medium py-2 rounded-md hover:bg-green-700 transition"
           >
             Cadastrar

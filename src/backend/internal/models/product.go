@@ -1,8 +1,9 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Product struct {
@@ -10,7 +11,7 @@ type Product struct {
 	Name        string         `gorm:"type:varchar(100);not null" json:"name"`
 	Description string         `gorm:"type:text" json:"description"`
 	Price       float64        `gorm:"type:numeric(10,2);not null" json:"price"`
-	Quantity    int            `gorm:"not null" json:"quantity"`
+	Quantity    int            `gorm:"not null;default:0" json:"quantity"`
 	Image       string         `gorm:"type:text" json:"image,omitempty"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

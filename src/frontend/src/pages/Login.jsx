@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest } from "../api";
+import api from "../api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +12,10 @@ const Login = () => {
     e.preventDefault();
     setErro(null);
 
-    const { status, data } = await apiRequest("/login", "POST", { email, password });
+    const { status, data } = await apiRequest("/login", "POST", {
+      email,
+      password,
+    });
 
     if (status === 200 && data.token) {
       localStorage.setItem("token", data.token);
@@ -22,6 +25,12 @@ const Login = () => {
     }
   };
 
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   return (
     <div className="flex items-center justify-center min-h-full pt-[80px]">
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md">
@@ -29,11 +38,15 @@ const Login = () => {
           Acesse sua conta
         </h2>
 
-        {erro && <p className="text-red-600 text-sm mb-4 text-center">{erro}</p>}
+        {erro && (
+          <p className="text-red-600 text-sm mb-4 text-center">{erro}</p>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">E-mail</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              E-mail
+            </label>
             <input
               type="email"
               className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -44,7 +57,9 @@ const Login = () => {
             />
           </div>
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Senha</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">
+              Senha
+            </label>
             <input
               type="password"
               className="w-full text-black border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

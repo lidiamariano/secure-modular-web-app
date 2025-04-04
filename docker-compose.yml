@@ -6,24 +6,24 @@ services:
     container_name: secureapp_db
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "secureapp_db"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./src/database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./src/database/init:/docker-entrypoint-initdb.d
     networks:
       - secureapp
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432"
 
   pgadmin:
     image: dpage/pgadmin4
     container_name: secureapp_pgadmin
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: "admin@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
     ports:
       - "5050:80"
     depends_on:
@@ -32,18 +32,25 @@ services:
       - secureapp
 
   backend:
-    build: ./src/backend
+    build:
+      context: ./src/backend
     container_name: secureapp_backend
-    restart: unless-stopped
-    env_file:
-      - .env
-    networks:
-      - secureapp
+    ports:
+      - "8080:8080"
     expose:
       - "8080"
     depends_on:
       - db
+    networks: 
+      - secureapp 
+    environment:
+      - DBHost=db
+      - DBUser=user
+      - DBPassword=password
+      - DBName=secureapp_db
+      - DBPort=5432
 
+  
   frontend:
     build:
       context: ./src/frontend
@@ -52,8 +59,8 @@ services:
     restart: unless-stopped
     networks:
       - secureapp
-    expose:
-      - "80"
+    volumes:
+      - frontend_dist:/app/dist
     depends_on:
       - backend
 
@@ -64,16 +71,17 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./src/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./src/frontend/dist:/usr/share/nginx/html:ro
+      - frontend_dist:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - backend
       - frontend
+      - backend
     networks:
       - secureapp
 
 volumes:
   db_data:
+  frontend_dist:
 
 networks:
   secureapp:

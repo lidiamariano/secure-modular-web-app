@@ -10,7 +10,7 @@ const ProductForm = () => {
   const [form, setForm] = useState({
     description: "",
     value: "",
-    quantity: ""
+    quantity: "",
   });
 
   const [erro, setErro] = useState(null);
@@ -18,16 +18,20 @@ const ProductForm = () => {
 
   useEffect(() => {
     if (isEdit) {
-      apiRequest(`/products`, "GET").then(({ data }) => {
-        const produto = data.find(p => String(p.id) === id);
-        if (produto) {
-          setForm({
-            description: produto.description,
-            value: produto.value,
-            quantity: produto.quantity
-          });
-        }
-      });
+      apiRequest(`/products`, "GET")
+        .then(({ data }) => {
+          const produto = data.find((p) => String(p.id) === id);
+          if (produto) {
+            setForm({
+              description: produto.description,
+              value: produto.value,
+              quantity: produto.quantity,
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Erro ao buscar produto:", error);
+        });
     }
   }, [id]);
 
@@ -41,7 +45,7 @@ const ProductForm = () => {
     setSucesso(null);
 
     const method = isEdit ? "PUT" : "POST";
-    const path = isEdit ? `/api/products/${id}` : `/api/products`;
+    const path = isEdit ? `/products/${id}` : `/products`; // sem /api aqui se baseURL for /api
 
     const { status, data } = await apiRequest(path, method, form, true);
 

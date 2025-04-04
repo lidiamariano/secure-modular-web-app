@@ -1,11 +1,21 @@
 import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../auth";
+import { useEffect, useState } from "react";
 
 const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    // Aqui você pode também validar o token se quiser
+    setIsAuthenticated(!!token);
+  }, []);
+
+  // Enquanto não verificar, pode mostrar um loading
+  if (isAuthenticated === null) {
+    return <div>Carregando...</div>;
   }
-  return children;
+
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 export default ProtectedRoute;

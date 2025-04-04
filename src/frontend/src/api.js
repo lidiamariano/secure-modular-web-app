@@ -1,26 +1,51 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost";
+import axios from "axios";
 
-export async function apiRequest(path, method = "GET", body = null, auth = false) {
-  const headers = {
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
     "Content-Type": "application/json",
-  };
+  },
+});
 
-  if (auth) {
-    const token = localStorage.getItem("token");
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
   }
+  return config;
+});
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : null,
-  });
-
-  if (res.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
   }
+);
 
-  const data = await res.json();
-  return { status: res.status, data };
+export async function apiRequest(
+  path,
+  method = "GET",
+  body = null,
+  auth = false
+) {
+  try {
+    const response = await api.request({
+      url: path,
+      method,
+      data: body,
+    });
+
+    return { status: response.status, data: response.data };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      data: error.response?.data || { message: "Erro inesperado" },
+    };
+  }
 }
