@@ -9,13 +9,18 @@ services:
       POSTGRES_USER: "user"
       POSTGRES_PASSWORD: "password"
       POSTGRES_DB: "secureapp_db"
+    ports:
+      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./src/database/init:/docker-entrypoint-initdb.d
     networks:
       - secureapp
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,12 +42,11 @@ services:
     container_name: secureapp_backend
     ports:
       - "8080:8080"
-    expose:
-      - "8080"
     depends_on:
-      - db
-    networks: 
-      - secureapp 
+      db:
+        condition: service_healthy
+    networks:
+      - secureapp
     environment:
       - DBHost=db
       - DBUser=user
@@ -50,7 +54,6 @@ services:
       - DBName=secureapp_db
       - DBPort=5432
 
-  
   frontend:
     build:
       context: ./src/frontend
@@ -71,7 +74,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - frontend_dist:/usr/share/nginx/html
+      - ./src/frontend/dist:/usr/share/nginx/html
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - frontend
@@ -82,6 +85,7 @@ services:
 volumes:
   db_data:
   frontend_dist:
+
 
 networks:
   secureapp:
